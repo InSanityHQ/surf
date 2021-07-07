@@ -1253,7 +1253,7 @@ initwebextensions(WebKitWebContext *wc, Client *c)
 	gv = g_variant_new("i", spair[1]);
 
 	webkit_web_context_set_web_extensions_initialization_user_data(wc, gv);
-	webkit_web_context_set_web_extensions_directory(wc, WEBEXTDIR);
+	/*webkit_web_context_set_web_extensions_directory(wc, WEBEXTDIR);*/
 }
 
 GtkWidget *
