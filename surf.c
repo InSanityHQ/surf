@@ -299,7 +299,7 @@ static ParamName loadfinished[] = {
 };
 
 /* configuration, allows nested code to access above variables */
-#include "config.h"
+#include "config.surf.h"
 
 void
 die(const char *errstr, ...)
