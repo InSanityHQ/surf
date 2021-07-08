@@ -143,7 +143,6 @@ typedef struct {
 
 /* Surf */
 static void die(const char *errstr, ...);
-static void usage(void);
 static void setup(void);
 static void sigchld(int unused);
 static void sighup(int unused);
@@ -299,7 +298,7 @@ static ParamName loadfinished[] = {
 };
 
 /* configuration, allows nested code to access above variables */
-#include "config.surf.h"
+#include "config.h"
 
 void
 die(const char *errstr, ...)
@@ -313,11 +312,10 @@ die(const char *errstr, ...)
 }
 
 void
-usage(void)
+print_error_and_die(void)
 {
-	die("usage: surf [-bBdDfFgGiIkKmMnNpPsStTvwxX]\n"
-	    "[-a cookiepolicies ] [-c cookiefile] [-C stylefile] [-e xid]\n"
-	    "[-r scriptfile] [-u useragent] [-z zoomlevel] [uri]\n");
+	die("positron's copy of suckless' surf\n"
+	    "usage: [uri]\n");
 }
 
 void
@@ -1984,6 +1982,7 @@ clickexternplayer(Client *c, const Arg *a, WebKitHitTestResult *h)
 	spawn(c, &arg);
 }
 
+
 int
 main(int argc, char *argv[])
 {
@@ -1993,130 +1992,12 @@ main(int argc, char *argv[])
 	memset(&arg, 0, sizeof(arg));
 
 	/* command line args */
-	ARGBEGIN {
-	case 'a':
-		defconfig[CookiePolicies].val.v = EARGF(usage());
-		defconfig[CookiePolicies].prio = 2;
-		break;
-	case 'b':
-		defconfig[ScrollBars].val.i = 0;
-		defconfig[ScrollBars].prio = 2;
-		break;
-	case 'B':
-		defconfig[ScrollBars].val.i = 1;
-		defconfig[ScrollBars].prio = 2;
-		break;
-	case 'c':
-		cookiefile = EARGF(usage());
-		break;
-	case 'C':
-		stylefile = EARGF(usage());
-		break;
-	case 'd':
-		defconfig[DiskCache].val.i = 0;
-		defconfig[DiskCache].prio = 2;
-		break;
-	case 'D':
-		defconfig[DiskCache].val.i = 1;
-		defconfig[DiskCache].prio = 2;
-		break;
-	case 'e':
-		embed = strtol(EARGF(usage()), NULL, 0);
-		break;
-	case 'f':
-		defconfig[RunInFullscreen].val.i = 0;
-		defconfig[RunInFullscreen].prio = 2;
-		break;
-	case 'F':
-		defconfig[RunInFullscreen].val.i = 1;
-		defconfig[RunInFullscreen].prio = 2;
-		break;
-	case 'g':
-		defconfig[Geolocation].val.i = 0;
-		defconfig[Geolocation].prio = 2;
-		break;
-	case 'G':
-		defconfig[Geolocation].val.i = 1;
-		defconfig[Geolocation].prio = 2;
-		break;
-	case 'i':
-		defconfig[LoadImages].val.i = 0;
-		defconfig[LoadImages].prio = 2;
-		break;
-	case 'I':
-		defconfig[LoadImages].val.i = 1;
-		defconfig[LoadImages].prio = 2;
-		break;
-	case 'k':
-		defconfig[KioskMode].val.i = 0;
-		defconfig[KioskMode].prio = 2;
-		break;
-	case 'K':
-		defconfig[KioskMode].val.i = 1;
-		defconfig[KioskMode].prio = 2;
-		break;
-	case 'm':
-		defconfig[Style].val.i = 0;
-		defconfig[Style].prio = 2;
-		break;
-	case 'M':
-		defconfig[Style].val.i = 1;
-		defconfig[Style].prio = 2;
-		break;
-	case 'n':
-		defconfig[Inspector].val.i = 0;
-		defconfig[Inspector].prio = 2;
-		break;
-	case 'N':
-		defconfig[Inspector].val.i = 1;
-		defconfig[Inspector].prio = 2;
-		break;
-	case 'r':
-		scriptfile = EARGF(usage());
-		break;
-	case 's':
-		defconfig[JavaScript].val.i = 0;
-		defconfig[JavaScript].prio = 2;
-		break;
-	case 'S':
-		defconfig[JavaScript].val.i = 1;
-		defconfig[JavaScript].prio = 2;
-		break;
-	case 't':
-		defconfig[StrictTLS].val.i = 0;
-		defconfig[StrictTLS].prio = 2;
-		break;
-	case 'T':
-		defconfig[StrictTLS].val.i = 1;
-		defconfig[StrictTLS].prio = 2;
-		break;
-	case 'u':
-		fulluseragent = EARGF(usage());
-		break;
-	case 'v':
-		die("surf-"VERSION", see LICENSE for © details\n");
-	case 'w':
-		showxid = 1;
-		break;
-	case 'x':
-		defconfig[Certificate].val.i = 0;
-		defconfig[Certificate].prio = 2;
-		break;
-	case 'X':
-		defconfig[Certificate].val.i = 1;
-		defconfig[Certificate].prio = 2;
-		break;
-	case 'z':
-		defconfig[ZoomLevel].val.f = strtof(EARGF(usage()), NULL);
-		defconfig[ZoomLevel].prio = 2;
-		break;
-	default:
-		usage();
-	} ARGEND;
-	if (argc > 0)
-		arg.v = argv[0];
-	else
-		arg.v = "about:blank";
+    /* We don't pass args here anyways for Positron */
+
+    if (argc == 1)
+        print_error_and_die();
+    
+    arg.v = argv[1];
 
 	setup();
 	c = newclient(NULL);
