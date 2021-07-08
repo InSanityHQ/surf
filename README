@@ -6,10 +6,8 @@ you may download the standalone source at https://surf.suckless.org/.
 
 ---------------------------------------------------------------------
 
-this is a modified version of surf for the Positron project. It will 
+This is a modified version of surf for the Positron project. It will 
 likely do nothing useful for you without the larger Positron toolchain. 
 See positron (https://github.com/InSanityHQ/positron) for building 
 instructions.
-
-
 
