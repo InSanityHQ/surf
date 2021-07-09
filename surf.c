@@ -122,10 +122,11 @@ print_error_and_die(void)
 }
 
 void
-setup(void)
+setup(const char *name)
 {
 	GIOChannel *gchanin;
 	GdkDisplay *gdpy;
+    argv0 = name;
 	int i, j;
 
 	/* clean up any zombies immediately */
