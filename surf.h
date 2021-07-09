@@ -10,6 +10,13 @@
 extern "C" {
 #endif
 
+static char *scriptfile     = (char *)  "~/.pSurf/script.js";
+static char *styledir       = (char *)  "~/.pSurf/styles/";
+static char *certdir        = (char *)  "~/.pSurf/certificates/";
+static char *cachedir       = (char *)  "~/.pSurf/cache/";
+static char *cookiefile     = (char *)  "~/.pSurf/cookies.txt";
+                           // c-capatability for the win!
+
 enum { AtomFind, AtomGo, AtomUri, AtomLast };
 
 enum {
