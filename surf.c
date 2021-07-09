@@ -17,27 +17,24 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-
+#include <glib/gstdio.h>
+#include <glib.h>
 #include <gdk/gdk.h>
 #include <gdk/gdkkeysyms.h>
 #include <gdk/gdkx.h>
-#include <glib/gstdio.h>
-#include <gtk/gtk.h>
 #include <gtk/gtkx.h>
 #include <gcr/gcr.h>
 #include <JavaScriptCore/JavaScript.h>
-#include <webkit2/webkit2.h>
 #include <X11/X.h>
 #include <X11/Xatom.h>
-#include <glib.h>
 
 #include "arg.h"
+#include "surf.h"
 #include "common.h"
 
 #define LENGTH(x)               (sizeof(x) / sizeof(x[0]))
 #define CLEANMASK(mask)         (mask & (MODKEY|GDK_SHIFT_MASK))
 
-#include "surf.h"
 
 /* Buttons */
 static void clicknavigate(Client *c, const Arg *a, WebKitHitTestResult *h);

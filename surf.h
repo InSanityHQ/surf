@@ -1,6 +1,11 @@
 #ifndef __SURF_H
 #define __SURF_H
 
+#include <regex.h>
+#include <webkit2/webkit2.h>
+#include <gtk/gtk.h>
+#include <X11/X.h>
+
 enum { AtomFind, AtomGo, AtomUri, AtomLast };
 
 enum {
