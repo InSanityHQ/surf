@@ -354,11 +354,10 @@ newclient(Client *rc)
 }
 
 void
-loaduri(Client *c, const Arg *a)
+loaduri(Client *c, const char *uri)
 {
 	struct stat st;
 	char *url, *path, *apath;
-	const char *uri = a->v;
 
 	if (g_strcmp0(uri, "") == 0)
 		return;
@@ -385,11 +384,7 @@ loaduri(Client *c, const Arg *a)
 
 	setatom(c, AtomUri, url);
 
-	if (strcmp(url, geturi(c)) == 0) {
-		reload(c, a);
-	} else {
-		webkit_web_view_load_uri(c->view, url);
-	}
+    webkit_web_view_load_uri(c->view, url);
 
 	g_free(url);
 }
@@ -1758,35 +1753,34 @@ clickexternplayer(Client *c, const Arg *a, WebKitHitTestResult *h)
 	spawn(c, &arg);
 }
 
+/*int*/
+/*main(int argc, char *argv[])*/
+/*{*/
+	/*Arg arg;*/
+	/*Client *c;*/
 
-int
-main(int argc, char *argv[])
-{
-	Arg arg;
-	Client *c;
+	/*memset(&arg, 0, sizeof(arg));*/
 
-	memset(&arg, 0, sizeof(arg));
+	/*[> command line args <]*/
+    /*[> We don't pass args here anyways for Positron <]*/
 
-	/* command line args */
-    /* We don't pass args here anyways for Positron */
-
-    if (argc == 1)
-        print_error_and_die();
+    /*if (argc == 1)*/
+        /*print_error_and_die();*/
     
-    arg.v = argv[1];
-    argv0 = argv[1];
+    /*arg.v = argv[1];*/
+    /*argv0 = argv[1];*/
 
-	setup();
-	c = newclient(NULL);
-	showview(NULL, c, 288, 929);
+	/*setup();*/
+	/*c = newclient(NULL);*/
+	/*showview(NULL, c, 288, 929);*/
 
-	loaduri(c, &arg);
-	/*updatetitle(c, "chickens");*/
+	/*loaduri(c, arg.v);*/
+	/*[>updatetitle(c, "chickens");<]*/
 
-    /*gtk_window_close(GTK_WINDOW(c->win));*/
+    /*[>gtk_window_close(GTK_WINDOW(c->win));<]*/
 
-    gtk_main();
-	cleanup();
+    /*gtk_main();*/
+	/*cleanup();*/
 
-	return 0;
-}
+	/*return 0;*/
+/*}*/

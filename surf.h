@@ -6,6 +6,10 @@
 #include <gtk/gtk.h>
 #include <X11/X.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 enum { AtomFind, AtomGo, AtomUri, AtomLast };
 
 enum {
@@ -111,9 +115,11 @@ typedef struct {
 } SiteSpecific;
 
 
+void setup(void);
+void cleanup(void);
+
 /* Surf */
 static void die(const char *errstr, ...);
-static void setup(void);
 static void sigchld(int unused);
 static void sighup(int unused);
 static char *buildfile(const char *path);
@@ -122,7 +128,7 @@ static char *untildepath(const char *path);
 static const char *getuserhomedir(const char *user);
 static const char *getcurrentuserhomedir(void);
 static Client *newclient(Client *c);
-static void loaduri(Client *c, const Arg *a);
+static void loaduri(Client *c, const char *uri);
 static const char *geturi(Client *c);
 static void setatom(Client *c, int a, const char *v);
 static const char *getatom(Client *c, int a);
@@ -145,7 +151,6 @@ static void newwindow(Client *c, const Arg *a, int noembed);
 static void spawn(Client *c, const Arg *a);
 static void msgext(Client *c, char type, const Arg *a);
 static void destroyclient(Client *c);
-static void cleanup(void);
 
 /* GTK/WebKit */
 static WebKitWebView *newview(Client *c, WebKitWebView *rv);
@@ -203,5 +208,11 @@ static void togglecookiepolicy(Client *c, const Arg *a);
 static void toggleinspector(Client *c, const Arg *a);
 static void find(Client *c, const Arg *a);
 
+#ifdef __cplusplus
+}
 #endif
+
+
+#endif
+
 
