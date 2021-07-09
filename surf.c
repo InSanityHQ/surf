@@ -392,7 +392,6 @@ loaduri(Client *c, const Arg *a)
 		reload(c, a);
 	} else {
 		webkit_web_view_load_uri(c->view, url);
-		updatetitle(c);
 	}
 
 	g_free(url);
@@ -439,28 +438,9 @@ getatom(Client *c, int a)
 }
 
 void
-updatetitle(Client *c)
+updatetitle(Client *c, const char *title)
 {
-	char *title;
-	const char *name = c->overtitle ? c->overtitle :
-	                   c->title ? c->title : "";
-
-	if (curconfig[ShowIndicators].val.i) {
-		gettogglestats(c);
-		getpagestats(c);
-
-		if (c->progress != 100)
-			title = g_strdup_printf("[%i%%] %s:%s | %s",
-			        c->progress, togglestats, pagestats, name);
-		else
-			title = g_strdup_printf("%s:%s | %s",
-			        togglestats, pagestats, name);
-
-		gtk_window_set_title(GTK_WINDOW(c->win), title);
-		g_free(title);
-	} else {
-		gtk_window_set_title(GTK_WINDOW(c->win), name);
-	}
+    gtk_window_set_title(GTK_WINDOW(c->win), title);
 }
 
 void
@@ -669,7 +649,6 @@ setparameter(Client *c, int refresh, ParamName p, const Arg *a)
 		return; /* do nothing */
 	}
 
-	updatetitle(c);
 	if (refresh)
 		reload(c, a);
 }
@@ -1142,7 +1121,6 @@ winevent(GtkWidget *w, GdkEvent *e, Client *c)
 	switch (e->type) {
 	case GDK_ENTER_NOTIFY:
 		c->overtitle = c->targeturi;
-		updatetitle(c);
 		break;
 	case GDK_KEY_PRESS:
 		if (!curconfig[KioskMode].val.i) {
@@ -1159,7 +1137,6 @@ winevent(GtkWidget *w, GdkEvent *e, Client *c)
 		}
 	case GDK_LEAVE_NOTIFY:
 		c->overtitle = NULL;
-		updatetitle(c);
 		break;
 	case GDK_WINDOW_STATE:
 		if (e->window_state.changed_mask ==
@@ -1175,7 +1152,7 @@ winevent(GtkWidget *w, GdkEvent *e, Client *c)
 }
 
 void
-showview(WebKitWebView *v, Client *c)
+showview(WebKitWebView *v, Client *c, int width, int height)
 {
 	GdkRGBA bgcolor = { 0 };
 	GdkWindow *gwin;
@@ -1184,7 +1161,7 @@ showview(WebKitWebView *v, Client *c)
 	c->inspector = webkit_web_view_get_inspector(c->view);
 
 	c->pageid = webkit_web_view_get_page_id(c->view);
-	c->win = createwindow(c);
+	c->win = createwindow(c, width, height);
 
 	gtk_container_add(GTK_CONTAINER(c->win), GTK_WIDGET(c->view));
 	gtk_widget_show_all(c->win);
@@ -1219,7 +1196,7 @@ showview(WebKitWebView *v, Client *c)
 }
 
 GtkWidget *
-createwindow(Client *c)
+createwindow(Client *c, int width, int height)
 {
 	char *wmstr;
 	GtkWidget *w;
@@ -1237,7 +1214,7 @@ createwindow(Client *c)
 		gtk_window_set_role(GTK_WINDOW(w), wmstr);
 		g_free(wmstr);
 
-		gtk_window_set_default_size(GTK_WINDOW(w), winsize[0], winsize[1]);
+		gtk_window_set_default_size(GTK_WINDOW(w), width, height);
 	}
 
 	g_signal_connect(G_OBJECT(w), "destroy",
@@ -1341,7 +1318,6 @@ loadchanged(WebKitWebView *v, WebKitLoadEvent e, Client *c)
 		runscript(c);
 		break;
 	}
-	updatetitle(c);
 }
 
 void
@@ -1349,14 +1325,12 @@ progresschanged(WebKitWebView *v, GParamSpec *ps, Client *c)
 {
 	c->progress = webkit_web_view_get_estimated_load_progress(c->view) *
 	              100;
-	updatetitle(c);
 }
 
 void
 titlechanged(WebKitWebView *view, GParamSpec *ps, Client *c)
 {
 	c->title = webkit_web_view_get_title(c->view);
-	updatetitle(c);
 }
 
 void
@@ -1378,7 +1352,6 @@ mousetargetchanged(WebKitWebView *v, WebKitHitTestResult *h, guint modifiers,
 		c->targeturi = NULL;
 
 	c->overtitle = c->targeturi;
-	updatetitle(c);
 }
 
 gboolean
@@ -1804,15 +1777,18 @@ main(int argc, char *argv[])
         print_error_and_die();
     
     arg.v = argv[1];
+    argv0 = argv[1];
 
 	setup();
 	c = newclient(NULL);
-	showview(NULL, c);
+	showview(NULL, c, 288, 929);
 
 	loaduri(c, &arg);
-	updatetitle(c);
+	/*updatetitle(c, "chickens");*/
 
-	gtk_main();
+    /*gtk_window_close(GTK_WINDOW(c->win));*/
+
+    gtk_main();
 	cleanup();
 
 	return 0;

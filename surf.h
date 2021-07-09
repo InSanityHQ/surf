@@ -121,7 +121,7 @@ static void loaduri(Client *c, const Arg *a);
 static const char *geturi(Client *c);
 static void setatom(Client *c, int a, const char *v);
 static const char *getatom(Client *c, int a);
-static void updatetitle(Client *c);
+static void updatetitle(Client *c, const char *title);
 static void gettogglestats(Client *c);
 static void getpagestats(Client *c);
 static WebKitCookieAcceptPolicy cookiepolicy_get(void);
@@ -152,8 +152,8 @@ static GdkFilterReturn processx(GdkXEvent *xevent, GdkEvent *event,
                                 gpointer d);
 static gboolean winevent(GtkWidget *w, GdkEvent *e, Client *c);
 static gboolean readsock(GIOChannel *s, GIOCondition ioc, gpointer unused);
-static void showview(WebKitWebView *v, Client *c);
-static GtkWidget *createwindow(Client *c);
+static void showview(WebKitWebView *v, Client *c, int width, int height);
+static GtkWidget *createwindow(Client *c, int width, int height);
 static gboolean loadfailedtls(WebKitWebView *v, gchar *uri,
                               GTlsCertificate *cert,
                               GTlsCertificateFlags err, Client *c);
