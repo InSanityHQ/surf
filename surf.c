@@ -35,10 +35,15 @@
 #define LENGTH(x)               (sizeof(x) / sizeof(x[0]))
 #define CLEANMASK(mask)         (mask & (MODKEY|GDK_SHIFT_MASK))
 
+static char *scriptfile     = (char *)  "~/.pSurf/script.js";
+static char *styledir       = (char *)  "~/.pSurf/styles/";
+static char *certdir        = (char *)  "~/.pSurf/certificates/";
+static char *cachedir       = (char *)  "~/.pSurf/cache/";
+static char *cookiefile     = (char *)  "~/.pSurf/cookies.txt";
 
 /* Buttons */
 static void clicknavigate(Client *c, const Arg *a, WebKitHitTestResult *h);
-static void clicknewwindow(Client *c, const Arg *a, WebKitHitTestResult *h);
+/*static void clicknewwindow(Client *c, const Arg *a, WebKitHitTestResult *h);*/
 static void clickexternplayer(Client *c, const Arg *a, WebKitHitTestResult *h);
 
 static char winid[64];
@@ -122,11 +127,19 @@ print_error_and_die(void)
 }
 
 void
-setup(const char *name)
+setup(const char *name, const StorePaths *paths)
 {
+    if (paths != NULL) {
+        scriptfile = (char *) paths->scriptfile;
+        styledir = (char *) paths->styledir;
+        certdir = (char *) paths->certdir;
+        cachedir = (char *) paths->cachedir;
+        cookiefile = (char *) paths->cookiefile;
+    }
+
 	GIOChannel *gchanin;
 	GdkDisplay *gdpy;
-    argv0 = name;
+    argv0 = (char *) name;
 	int i, j;
 
 	/* clean up any zombies immediately */
@@ -762,59 +775,6 @@ handleplumb(Client *c, const char *uri)
 	spawn(c, &a);
 }
 
-void
-newwindow(Client *c, const Arg *a, int noembed)
-{
-	int i = 0;
-	char tmp[64];
-	const char *cmd[29], *uri;
-	const Arg arg = { .v = cmd };
-
-	cmd[i++] = argv0;
-	cmd[i++] = "-a";
-	cmd[i++] = curconfig[CookiePolicies].val.v;
-	cmd[i++] = curconfig[ScrollBars].val.i ? "-B" : "-b";
-	if (cookiefile && g_strcmp0(cookiefile, "")) {
-		cmd[i++] = "-c";
-		cmd[i++] = cookiefile;
-	}
-	if (stylefile && g_strcmp0(stylefile, "")) {
-		cmd[i++] = "-C";
-		cmd[i++] = stylefile;
-	}
-	cmd[i++] = curconfig[DiskCache].val.i ? "-D" : "-d";
-	if (embed && !noembed) {
-		cmd[i++] = "-e";
-		snprintf(tmp, LENGTH(tmp), "%lu", embed);
-		cmd[i++] = tmp;
-	}
-	cmd[i++] = curconfig[RunInFullscreen].val.i ? "-F" : "-f" ;
-	cmd[i++] = curconfig[Geolocation].val.i ?     "-G" : "-g" ;
-	cmd[i++] = curconfig[LoadImages].val.i ?      "-I" : "-i" ;
-	cmd[i++] = curconfig[KioskMode].val.i ?       "-K" : "-k" ;
-	cmd[i++] = curconfig[Style].val.i ?           "-M" : "-m" ;
-	cmd[i++] = curconfig[Inspector].val.i ?       "-N" : "-n" ;
-	if (scriptfile && g_strcmp0(scriptfile, "")) {
-		cmd[i++] = "-r";
-		cmd[i++] = scriptfile;
-	}
-	cmd[i++] = curconfig[JavaScript].val.i ? "-S" : "-s";
-	cmd[i++] = curconfig[StrictTLS].val.i ? "-T" : "-t";
-	if (fulluseragent && g_strcmp0(fulluseragent, "")) {
-		cmd[i++] = "-u";
-		cmd[i++] = fulluseragent;
-	}
-	if (showxid)
-		cmd[i++] = "-w";
-	cmd[i++] = curconfig[Certificate].val.i ? "-X" : "-x" ;
-	/* do not keep zoom level */
-	cmd[i++] = "--";
-	if ((uri = a->v))
-		cmd[i++] = uri;
-	cmd[i] = NULL;
-
-	spawn(c, &arg);
-}
 
 void
 spawn(Client *c, const Arg *a)
@@ -1097,7 +1057,7 @@ processx(GdkXEvent *e, GdkEvent *event, gpointer d)
 				return GDK_FILTER_REMOVE;
 			} else if (ev->atom == atoms[AtomGo]) {
 				a.v = getatom(c, AtomGo);
-				loaduri(c, &a);
+				loaduri(c, "https://xkcd.com/no");
 
 				return GDK_FILTER_REMOVE;
 			}
@@ -1381,9 +1341,9 @@ decidepolicy(WebKitWebView *v, WebKitPolicyDecision *d,
 	case WEBKIT_POLICY_DECISION_TYPE_NAVIGATION_ACTION:
 		decidenavigation(d, c);
 		break;
-	case WEBKIT_POLICY_DECISION_TYPE_NEW_WINDOW_ACTION:
-		decidenewwindow(d, c);
-		break;
+	/*case WEBKIT_POLICY_DECISION_TYPE_NEW_WINDOW_ACTION:*/
+		/*decidenewwindow(d, c);*/
+		/*break;*/
 	case WEBKIT_POLICY_DECISION_TYPE_RESPONSE:
 		decideresource(d, c);
 		break;
@@ -1423,35 +1383,6 @@ decidenavigation(WebKitPolicyDecision *d, Client *c)
 	}
 }
 
-void
-decidenewwindow(WebKitPolicyDecision *d, Client *c)
-{
-	Arg arg;
-	WebKitNavigationAction *a =
-	    webkit_navigation_policy_decision_get_navigation_action(
-	    WEBKIT_NAVIGATION_POLICY_DECISION(d));
-
-
-	switch (webkit_navigation_action_get_navigation_type(a)) {
-	case WEBKIT_NAVIGATION_TYPE_LINK_CLICKED: /* fallthrough */
-	case WEBKIT_NAVIGATION_TYPE_FORM_SUBMITTED: /* fallthrough */
-	case WEBKIT_NAVIGATION_TYPE_BACK_FORWARD: /* fallthrough */
-	case WEBKIT_NAVIGATION_TYPE_RELOAD: /* fallthrough */
-	case WEBKIT_NAVIGATION_TYPE_FORM_RESUBMITTED:
-		/* Filter domains here */
-/* If the value of “mouse-button” is not 0, then the navigation was triggered by a mouse event.
- * test for link clicked but no button ? */
-		arg.v = webkit_uri_request_get_uri(
-		        webkit_navigation_action_get_request(a));
-		newwindow(c, &arg, 0);
-		break;
-	case WEBKIT_NAVIGATION_TYPE_OTHER: /* fallthrough */
-	default:
-		break;
-	}
-
-	webkit_policy_decision_ignore(d);
-}
 
 void
 decideresource(WebKitPolicyDecision *d, Client *c)
@@ -1550,7 +1481,7 @@ pasteuri(GtkClipboard *clipboard, const char *text, gpointer d)
 {
 	Arg a = {.v = text };
 	if (text)
-		loaduri((Client *) d, &a);
+		loaduri((Client *) d, text);
 }
 
 void
@@ -1736,14 +1667,7 @@ clicknavigate(Client *c, const Arg *a, WebKitHitTestResult *h)
 	navigate(c, a);
 }
 
-void
-clicknewwindow(Client *c, const Arg *a, WebKitHitTestResult *h)
-{
-	Arg arg;
 
-	arg.v = webkit_hit_test_result_get_link_uri(h);
-	newwindow(c, &arg, a->i);
-}
 
 void
 clickexternplayer(Client *c, const Arg *a, WebKitHitTestResult *h)

@@ -10,13 +10,6 @@
 extern "C" {
 #endif
 
-static char *scriptfile     = (char *)  "~/.pSurf/script.js";
-static char *styledir       = (char *)  "~/.pSurf/styles/";
-static char *certdir        = (char *)  "~/.pSurf/certificates/";
-static char *cachedir       = (char *)  "~/.pSurf/cache/";
-static char *cookiefile     = (char *)  "~/.pSurf/cookies.txt";
-                           // c-capatability for the win!
-
 enum { AtomFind, AtomGo, AtomUri, AtomLast };
 
 enum {
@@ -77,6 +70,14 @@ typedef struct {
 	int prio;
 } Parameter;
 
+typedef struct {
+    const char *scriptfile;
+    const char *styledir;
+    const char *certdir;
+    const char *cachedir;
+    const char *cookiefile;
+} StorePaths;
+
 typedef struct Client {
 	GtkWidget *win;
 	WebKitWebView *view;
@@ -122,7 +123,7 @@ typedef struct {
 } SiteSpecific;
 
 
-void setup(const char *name);
+void setup(const char *name, const StorePaths *paths);
 void cleanup(void);
 Client* newclient(Client *c);
 void loaduri(Client *c, const char *uri);
