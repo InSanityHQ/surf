@@ -129,6 +129,7 @@ Client* newclient(Client *c);
 void loaduri(Client *c, const char *uri);
 void showview(WebKitWebView *v, Client *c, int width, int height);
 void updatetitle(Client *c, const char *title);
+void toggleinspector(Client *c);
 
 /* Surf */
 static void die(const char *errstr, ...);
@@ -213,7 +214,6 @@ static void stop(Client *c, const Arg *a);
 static void toggle(Client *c, const Arg *a);
 static void togglefullscreen(Client *c, const Arg *a);
 static void togglecookiepolicy(Client *c, const Arg *a);
-static void toggleinspector(Client *c, const Arg *a);
 static void find(Client *c, const Arg *a);
 
 #ifdef __cplusplus

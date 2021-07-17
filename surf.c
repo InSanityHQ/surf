@@ -1627,7 +1627,7 @@ togglecookiepolicy(Client *c, const Arg *a)
 }
 
 void
-toggleinspector(Client *c, const Arg *a)
+toggleinspector(Client *c)
 {
 	if (webkit_web_inspector_is_attached(c->inspector))
 		webkit_web_inspector_close(c->inspector);
